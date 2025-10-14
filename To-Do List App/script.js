@@ -20,15 +20,19 @@ function addTask() {
   const taskText = taskInput.value.trim();
   if (taskText === "") return alert("Please enter a task ❗");
 
-  const taskItem = createTaskElement(taskText);
+  const dateTime = new Date().toLocaleString();
+  const taskItem = createTaskElement(taskText, dateTime);
   taskList.appendChild(taskItem);
   saveTasks();
   taskInput.value = "";
 }
 
-function createTaskElement(taskText) {
+function createTaskElement(taskText, dateTime) {
   const li = document.createElement("li");
-  li.textContent = taskText;
+
+  const textDiv = document.createElement("div");
+  textDiv.classList.add("task-content");
+  textDiv.innerHTML = `<strong>${taskText}</strong><br><small>${dateTime}</small>`;
 
   // Toggle complete
   li.addEventListener("click", () => {
@@ -46,6 +50,7 @@ function createTaskElement(taskText) {
     saveTasks();
   });
 
+  li.appendChild(textDiv);
   li.appendChild(deleteBtn);
   return li;
 }
@@ -54,8 +59,11 @@ function createTaskElement(taskText) {
 function saveTasks() {
   const tasks = [];
   taskList.querySelectorAll("li").forEach((li) => {
+    const text = li.querySelector("strong").textContent;
+    const time = li.querySelector("small").textContent;
     tasks.push({
-      text: li.firstChild.textContent,
+      text,
+      time,
       completed: li.classList.contains("completed"),
     });
   });
@@ -66,7 +74,7 @@ function saveTasks() {
 function loadTasks() {
   const storedTasks = JSON.parse(localStorage.getItem("tasks")) || [];
   storedTasks.forEach((task) => {
-    const li = createTaskElement(task.text);
+    const li = createTaskElement(task.text, task.time);
     if (task.completed) li.classList.add("completed");
     taskList.appendChild(li);
   });
